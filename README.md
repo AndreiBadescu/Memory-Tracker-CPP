@@ -6,7 +6,7 @@ Functions:
 - MemoryHandler::Allocations() : to show how many allocations and deallocations you've done
 - MemoryHandler::UnfreedAllocations() : to show how many allocations are still alive (unfreed)
 - MemoryHandler::ShowAll() : calls all the above functions (in this order)
-- 
+
 Options:
 If you want to print a message with how much memory you allocate every time go to line 5 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true"
 
