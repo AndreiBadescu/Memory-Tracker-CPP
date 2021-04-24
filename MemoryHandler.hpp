@@ -19,7 +19,7 @@
 
     How is done:
     I overloaded the new, new[], delete and delete[] operators.
-    You can do maximum 10,000 unfreed allocations before you over
+    You can do maximum 10,000 unfreed allocations before you exceed the limit
     (if you want to increase / decrease this limit go to line 4 and change the number)
 
     Others:
@@ -119,12 +119,22 @@ void* operator new[](size_t size) {
     return ptr;
 }
 
+void operator delete(void* adress) {
+    MemoryHandler::Deallocate(adress, false);
+    free(adress);
+}
+
 void operator delete(void* adress, size_t size) {
     MemoryHandler::Deallocate(adress, false);
     free(adress);
 }
 
 void operator delete[](void* adress) {
+    MemoryHandler::Deallocate(adress, true);
+    free(adress);
+}
+
+void operator delete[](void* adress, size_t size) {
     MemoryHandler::Deallocate(adress, true);
     free(adress);
 }
