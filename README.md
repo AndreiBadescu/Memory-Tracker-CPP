@@ -25,4 +25,5 @@ You can do maximum 10,000 unfreed allocations before you exceed the limit
 Others:
 If you try to delete an array like a variable (basically, just deleting the 1st element)
 you'll get an error message saying "YOU DELETED AN ARRAY LIKE A VARIABLE, USE []".
-Also if you try to allocate 0 bytes you'll get a warning in console.
+If you try to allocate 0 bytes you'll get a warning in console.
+Also you'll probably get 2 warnings from the compiler, don't worry everything works fine.
