@@ -1,12 +1,12 @@
-# Memory-Handler-CPP
+# Memory-Tracker-CPP
 I've created a basic memory handler for c++ programs. This file is a header.
 
 
 Functions:
-- MemoryHandler::MemoryUsage() : to show how much memory is currently dynamic allocated;
-- MemoryHandler::Allocations() : to show how many allocations and deallocations you've done;
-- MemoryHandler::UnfreedAllocations() : to show how many allocations are still alive (unfreed);
-- MemoryHandler::ShowAll() : calls all the above functions (in this order).
+- MemoryTracker::MemoryUsage() : to show how much memory is currently dynamic allocated;
+- MemoryTracker::Allocations() : to show how many allocations and deallocations you've done;
+- MemoryTracker::UnfreedAllocations() : to show how many allocations are still alive (unfreed);
+- MemoryTracker::ShowAll() : calls all the above functions (in this order).
 
 
 Option:
