@@ -77,7 +77,7 @@
 * 
 */
 
-/* HERE BEGINS THE CODE (DON'T CHANGE IT IF YOU DON'T KNOW WHAT AR YOU DOING)*/
+/* HERE BEGINS THE CODE (DON'T CHANGE IT IF YOU DON'T KNOW WHAT YOU ARE DOING)*/
 
 /* This dissables 2 warnings related to this file in MSVC */
 /* but you also need to uncomment line 214 "//#pragma warning(pop)" */
