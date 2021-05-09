@@ -1,11 +1,3 @@
-#ifndef MEMORYHANDLER_H_INCLUDED
-#define MEMORYHANDLER_H_INCLUDED
-
-#include <iostream>
-
-#define LIMIT 10000
-#define MESSAGES_ON false
-
 /*
     Functions:
     - MemoryHandler::MemoryUsage() : to show how much memory is currently dynamic allocated
@@ -16,6 +8,7 @@
     Option:
     If you want to print a message with how much memory you allocate every time
     go to line 5 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true"
+    Format of a printed message in console is: "<FILENAME> <LINE>: <Message>"
 
     How is done:
     I overloaded the new, new[], delete and delete[] operators.
@@ -28,6 +21,73 @@
     Also if you try to allocate 0 bytes you'll get a warning in console
 */
 
+#ifndef MEMORYHANDLER_H_INCLUDED
+#define MEMORYHANDLER_H_INCLUDED
+
+// change to true to show messages in console when you allocate/deallocate memory
+#define MESSAGES_ON true
+// change this limits if you do more than 10,000 allocations
+#define LIMIT 10000
+
+/*
+*
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+*/
+
+/* HERE BEGINS THE CODE (DON'T CHANGE IT IF YOU DON'T KNOW WHAT AR YOU DOING)*/
+
+/* This dissables 2 warnings related to this file in MSVC */
+/* but you also need to uncomment line 214 "//#pragma warning(pop)" */
+//#pragma warning(push)
+//#pragma warning(disable : 28251)
+
+#include <iostream>
+#include <cassert>
+#include <cstring>
+
 class MemoryHandler {
 public:
     static MemoryHandler& Get() {
@@ -35,7 +95,7 @@ public:
         return handler;
     }
 
-    static void Allocate(void* adress, size_t size, bool isArray) {
+    static void Allocate(void* const adress, const std::size_t size, const bool isArray) {
         if (Get().printMessages) printf("Allocating %zu bytes\n", size);
         if (size == 0) printf("!!!WARNING: YOU ALLOCATED 0 BYTES\n");
         Get().blocks[Get().nr_of_allocations].adress = adress;
@@ -45,7 +105,7 @@ public:
         ++Get().nr_of_allocations;
     }
 
-    static void Deallocate(void* adress, bool isArray) {
+    static void Deallocate(const void* const adress, const bool isArray) {
         for (int32_t i = 0; i < Get().nr_of_allocations - Get().nr_of_deallocations; ++i) {
             if (adress == Get().blocks[i].adress) {
                 if (isArray != Get().blocks[i].isArray) {
@@ -98,45 +158,58 @@ private:
     int64_t memory;
     int32_t nr_of_allocations;
     int32_t nr_of_deallocations;
-    memory_block blocks[LIMIT];
+    memory_block* blocks;
 
     MemoryHandler() {
         memory = 0;
         nr_of_allocations = 0;
         nr_of_deallocations = 0;
+        blocks = (memory_block*) malloc(LIMIT * sizeof(memory_block));
+        assert(blocks);
     }
 };
 
-void* operator new(size_t size) {
+void* operator new(const std::size_t size) {
     void* ptr = malloc(size);
+    assert(ptr);
     MemoryHandler::Allocate(ptr, size, false);
     return ptr;
 }
 
-void* operator new[](size_t size) {
+void* operator new[](const std::size_t size) {
     void* ptr = malloc(size);
+    assert(ptr);
     MemoryHandler::Allocate(ptr, size, true);
     return ptr;
 }
 
-void operator delete(void* adress) {
+void operator delete(void* const adress) {
+    assert(adress);
     MemoryHandler::Deallocate(adress, false);
     free(adress);
 }
 
-void operator delete(void* adress, size_t size) {
-    MemoryHandler::Deallocate(adress, false);
-    free(adress);
-}
-
-void operator delete[](void* adress) {
+void operator delete[](void* const adress) {
+    assert(adress);
     MemoryHandler::Deallocate(adress, true);
     free(adress);
 }
 
-void operator delete[](void* adress, size_t size) {
-    MemoryHandler::Deallocate(adress, true);
-    free(adress);
+void* operator new(const std::size_t size, const int line, const char* const file) {
+    printf("%s %d: ", file, line);
+    return ::operator new(size);
 }
 
+void* operator new[](const std::size_t size, const int line, const char* const file) {
+    printf("%s %d: ", file, line);
+    return ::operator new[](size);
+}
+
+#if MESSAGES_ON
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#define new new(__LINE__, __FILENAME__)
+#define delete printf("%s %d: ", __FILENAME__, __LINE__), delete
+#endif
+
+//#pragma warning(pop)
 #endif // MEMORYHANDLER_H_INCLUDED
