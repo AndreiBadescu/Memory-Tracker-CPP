@@ -13,7 +13,7 @@ Option:
 If you want to print a message with how much memory you allocate every time
 go to line 5 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true"
 
-Format of a printed message in console is: "~FILENAME~ ~LINE~: ~Message~"
+Format of a printed message in console is: "-FILENAME- -LINE-: -Message-"
 
 
 How is done:
