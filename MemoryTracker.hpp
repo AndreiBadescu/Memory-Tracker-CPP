@@ -98,9 +98,9 @@ public:
     }
 
     static void Allocate(void* const adress, const std::size_t size, const bool isArray) {
-        assert((Get().nr_of_allocations - Get().nr_of_deallocations) < 1000);
-        if ((Get().nr_of_allocations - Get().nr_of_deallocations) >= 1000) {
-            printf("YOU EXCEEDED THE LIMIT OF 1,000 MAXIMUM UNFREED ALLOCATIONS\n");
+        assert((Get().nr_of_allocations - Get().nr_of_deallocations) < LIMIT);
+        if ((Get().nr_of_allocations - Get().nr_of_deallocations) >= LIMIT) {
+            printf("YOU EXCEEDED THE LIMIT OF %d MAXIMUM UNFREED ALLOCATIONS\n", LIMIT);
             return; 
         }
         if (Get().print_messages) printf("Allocating %zu bytes\n", size);
