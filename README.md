@@ -13,7 +13,7 @@ Functions:
 Option:
 
 If you want to print a message with how much memory you allocate every time
-go to line 5 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true".
+go to line 25 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true".
 
 Format of a printed message in console is: "\<FILENAME\> \<LINE\>: \<Message\>".
 
@@ -21,8 +21,8 @@ Format of a printed message in console is: "\<FILENAME\> \<LINE\>: \<Message\>".
 How is done:
 
 I overloaded the new, new[], delete and delete[] operators.
-You can do maximum 10,000 unfreed allocations before you exceed the limit
-(if you want to increase / decrease this limit go to line 4 and change the number).
+You can do maximum 1,000 unfreed allocations before you exceed the limit
+(if you want to increase / decrease this limit go to line 27 and change the number).
 
 
 Others:
@@ -33,4 +33,4 @@ you'll get an error message saying "YOU DELETED AN ARRAY LIKE A VARIABLE, USE []
 
 If you try to allocate 0 bytes you'll get a warning in console.
 
-Also you'll probably get 2 warnings from the compiler, don't worry everything works fine.
+Also you'll probably get some warnings from the compiler, don't worry everything works fine.
