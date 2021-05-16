@@ -6,7 +6,7 @@ Functions:
 - MemoryTracker::ShowAll() : calls all the above functions (in this order).
 Option:
 If you want to print a message with how much memory you allocate every time
-go to line 25 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true".
+go to line 5 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true".
 Format of a printed message in console is: "<FILENAME> <LINE>: <Message>".
 How is done:
 I overloaded the new, new[], delete and delete[] operators.
@@ -22,7 +22,7 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 #define MEMORYTRACKER_H_INCLUDED_
 
 // change to true to show messages in console when you allocate/deallocate memory
-#define MESSAGES_ON true
+#define MESSAGES_ON false
 // change this limits if you do more than 1,000 allocations
 #define LIMIT 1000
 
@@ -78,8 +78,9 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 
 /* This dissables 2 warnings related to this file in MSVC */
 /* but you also need to uncomment line 214 "//#pragma warning(pop)" */
-//#pragma warning(push)
-//#pragma warning(disable : 28251)
+#pragma warning(push)
+#pragma warning(disable : 28251)
+#pragma warning(disable : 28251)
 
 #include <cassert>
 #include <cstring>
@@ -97,6 +98,11 @@ public:
     }
 
     static void Allocate(void* const adress, const std::size_t size, const bool isArray) {
+        assert((Get().nr_of_allocations - Get().nr_of_deallocations) < 1000);
+        if ((Get().nr_of_allocations - Get().nr_of_deallocations) >= 1000) {
+            printf("YOU EXCEEDED THE LIMIT OF 1,000 MAXIMUM UNFREED ALLOCATIONS\n");
+            return; 
+        }
         if (Get().print_messages) printf("Allocating %zu bytes\n", size);
         if (size == 0) printf("!!!WARNING!!!: YOU ALLOCATED 0 BYTES\n");
         Get().blocks[Get().nr_of_allocations - Get().nr_of_deallocations].adress = adress;
@@ -247,5 +253,5 @@ void* operator new[](const std::size_t size, const char* const file, const int l
 #define delete MemoryTracker::Get().AddMessage(__FILENAME__, __LINE__), delete
 #endif
 
-//#pragma warning(pop)
+#pragma warning(pop)
 #endif // MEMORYTRACKER_H_INCLUDED_
