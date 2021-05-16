@@ -165,7 +165,7 @@ public:
     }
 
     void PrintMessage() {
-        assert(stack_size > 0);
+        //assert(stack_size > 0);
         if (stack_size <= 0) { return; }
         --stack_size;
         printf("%s %d: ", messages[stack_size].filename, messages[stack_size].line);
