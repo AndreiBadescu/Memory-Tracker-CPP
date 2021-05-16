@@ -4,17 +4,14 @@ Functions:
 - MemoryTracker::Allocations() : to show how many allocations and deallocations you've done;
 - MemoryTracker::UnfreedAllocations() : to show how many allocations are still alive (unfreed);
 - MemoryTracker::ShowAll() : calls all the above functions (in this order).
-
 Option:
 If you want to print a message with how much memory you allocate every time
 go to line 5 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true".
 Format of a printed message in console is: "<FILENAME> <LINE>: <Message>".
-
 How is done:
 I overloaded the new, new[], delete and delete[] operators.
 You can do maximum 10,000 unfreed allocations before you exceed the limit
 (if you want to increase / decrease this limit go to line 4 and change the number).
-
 Others:
 If you try to delete an array like a variable (basically, just deleting the 1st element)
 you'll get an error message saying "YOU DELETED AN ARRAY LIKE A VARIABLE, USE []".
@@ -31,50 +28,50 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 
 /*
 *
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
-* 
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
 */
 
 /* HERE BEGINS THE CODE (DON'T CHANGE IT IF YOU DON'T KNOW WHAT YOU DOING)*/
@@ -87,6 +84,7 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 #include <iostream>
 #include <cassert>
 #include <cstring>
+#include <cstdlib>
 
 class MemoryTracker {
 public:
@@ -98,9 +96,9 @@ public:
     static void Allocate(void* const adress, const std::size_t size, const bool isArray) {
         if (Get().printMessages) printf("Allocating %zu bytes\n", size);
         if (size == 0) printf("!!!WARNING!!!: YOU ALLOCATED 0 BYTES\n");
-        Get().blocks[Get().nr_of_allocations].adress = adress;
-        Get().blocks[Get().nr_of_allocations].size = size;
-        Get().blocks[Get().nr_of_allocations].isArray = isArray;
+        Get().blocks[Get().nr_of_allocations - Get().nr_of_deallocations].adress = adress;
+        Get().blocks[Get().nr_of_allocations - Get().nr_of_deallocations].size = size;
+        Get().blocks[Get().nr_of_allocations - Get().nr_of_deallocations].isArray = isArray;
         Get().memory += size;
         ++Get().nr_of_allocations;
     }
@@ -118,9 +116,10 @@ public:
                 Get().memory -= Get().blocks[i].size;
                 ++Get().nr_of_deallocations;
 
-                for (int32_t j = i + 1; j < Get().nr_of_allocations; ++j) {
-                    Get().blocks[j - 1] = Get().blocks[j];
-                }
+                memmove(Get().blocks + i,
+                        Get().blocks + i + 1,
+                        (Get().nr_of_allocations - i - 1) * sizeof(memory_block));
+
                 break;
             }
         }
@@ -158,14 +157,12 @@ private:
     int64_t memory;
     int32_t nr_of_allocations;
     int32_t nr_of_deallocations;
-    memory_block* blocks;
+    memory_block blocks[LIMIT];
 
     MemoryTracker() {
         memory = 0;
         nr_of_allocations = 0;
         nr_of_deallocations = 0;
-        blocks = (memory_block*) malloc(LIMIT * sizeof(memory_block));
-        assert(blocks);
     }
 };
 
@@ -184,14 +181,18 @@ void* operator new[](const std::size_t size) {
 }
 
 void operator delete(void* const adress) {
-    assert(adress);
     MemoryTracker::Deallocate(adress, false);
+    if (adress == nullptr) {
+        printf("Freeing 0 bytes\n");
+    }
     free(adress);
 }
 
 void operator delete[](void* const adress) {
-    assert(adress);
     MemoryTracker::Deallocate(adress, true);
+    if (adress == nullptr) {
+        printf("Freeing 0 bytes\n");
+    }
     free(adress);
 }
 
