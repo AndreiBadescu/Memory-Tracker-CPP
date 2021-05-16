@@ -163,6 +163,7 @@ private:
         memory = 0;
         nr_of_allocations = 0;
         nr_of_deallocations = 0;
+        blocks[0] = {NULL, 0, 0}; // this removes a warning (unitialized variable)
     }
 };
 
@@ -182,7 +183,7 @@ void* operator new[](const std::size_t size) {
 
 void operator delete(void* const adress) {
     MemoryTracker::Deallocate(adress, false);
-    if (adress == nullptr) {
+    if (adress == NULL) {
         printf("Freeing 0 bytes\n");
     }
     free(adress);
@@ -190,7 +191,7 @@ void operator delete(void* const adress) {
 
 void operator delete[](void* const adress) {
     MemoryTracker::Deallocate(adress, true);
-    if (adress == nullptr) {
+    if (adress == NULL) {
         printf("Freeing 0 bytes\n");
     }
     free(adress);
