@@ -11,7 +11,7 @@ Format of a printed message in console is: "<FILENAME> <LINE>: <Message>".
 How is done:
 I overloaded the new, new[], delete and delete[] operators.
 You can do maximum 1,000 unfreed allocations before you exceed the limit
-(if you want to increase / decrease this limit go to line 4 and change the number).
+(if you want to increase / decrease this limit go to line 27 and change the number).
 Others:
 If you try to delete an array like a variable (basically, just deleting the 1st element)
 you'll get an error message saying "YOU DELETED AN ARRAY LIKE A VARIABLE, USE []".
