@@ -10,7 +10,7 @@ go to line 5 and change "#define MESSAGES_ON false" to "#define MESSAGES_ON true
 Format of a printed message in console is: "<FILENAME> <LINE>: <Message>".
 How is done:
 I overloaded the new, new[], delete and delete[] operators.
-You can do maximum 10,000 unfreed allocations before you exceed the limit
+You can do maximum 1,000 unfreed allocations before you exceed the limit
 (if you want to increase / decrease this limit go to line 4 and change the number).
 Others:
 If you try to delete an array like a variable (basically, just deleting the 1st element)
@@ -23,8 +23,8 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 
 // change to true to show messages in console when you allocate/deallocate memory
 #define MESSAGES_ON true
-// change this limits if you do more than 10,000 allocations
-#define LIMIT 10000
+// change this limits if you do more than 1,000 allocations
+#define LIMIT 1000
 
 /*
 *
@@ -71,7 +71,7 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 *
 *
 *
-*
+*d
 */
 
 /* HERE BEGINS THE CODE (DON'T CHANGE IT IF YOU DON'T KNOW WHAT YOU DOING)*/
@@ -81,20 +81,23 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 //#pragma warning(push)
 //#pragma warning(disable : 28251)
 
-#include <iostream>
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
 
+#define MAX_FILENAME_LENGTH 256
+#define MAX_MESSAGES_ON_STACK 30
+
 class MemoryTracker {
 public:
-    static MemoryTracker& Get() {
+    static MemoryTracker& Get() noexcept {
         static MemoryTracker tracker;
+        //printf("%d\n", sizeof(tracker));
         return tracker;
     }
 
     static void Allocate(void* const adress, const std::size_t size, const bool isArray) {
-        if (Get().printMessages) printf("Allocating %zu bytes\n", size);
+        if (Get().print_messages) printf("Allocating %zu bytes\n", size);
         if (size == 0) printf("!!!WARNING!!!: YOU ALLOCATED 0 BYTES\n");
         Get().blocks[Get().nr_of_allocations - Get().nr_of_deallocations].adress = adress;
         Get().blocks[Get().nr_of_allocations - Get().nr_of_deallocations].size = size;
@@ -111,7 +114,7 @@ public:
                     break;
                 }
 
-                if (Get().printMessages) printf("Freeing %zu bytes\n", Get().blocks[i].size);
+                if (Get().print_messages) printf("Freeing %zu bytes\n", Get().blocks[i].size);
 
                 Get().memory -= Get().blocks[i].size;
                 ++Get().nr_of_deallocations;
@@ -146,6 +149,23 @@ public:
         printf("\n");
     }
 
+#if MESSAGES_ON
+    void AddMessage(const char* const str, const int32_t line) {
+        assert(stack_size < MAX_MESSAGES_ON_STACK);
+        if (stack_size >= MAX_MESSAGES_ON_STACK) { return; }
+        strcpy(messages[stack_size].filename, str);
+        messages[stack_size].line = line;
+        ++stack_size;
+    }
+
+    void PrintMessage() {
+        assert(stack_size > 0);
+        if (stack_size <= 0) { return; }
+        --stack_size;
+        printf("%s %d: ", messages[stack_size].filename, messages[stack_size].line);
+    }
+#endif
+
 private:
     struct memory_block {
         void* adress;
@@ -153,17 +173,23 @@ private:
         bool isArray;
     };
 
-    const bool printMessages = MESSAGES_ON;
+    const bool print_messages = MESSAGES_ON;
     int64_t memory;
     int32_t nr_of_allocations;
     int32_t nr_of_deallocations;
     memory_block blocks[LIMIT];
 
-    MemoryTracker() {
+    int stack_size;
+    struct {
+        char filename[MAX_FILENAME_LENGTH] = {'\0'};
+        int32_t line;
+    } messages[MAX_MESSAGES_ON_STACK];
+
+    MemoryTracker() noexcept {
         memory = 0;
         nr_of_allocations = 0;
         nr_of_deallocations = 0;
-        blocks[0] = {NULL, 0, 0}; // this removes a warning (unitialized variable)
+        stack_size = 0;
     }
 };
 
@@ -182,35 +208,43 @@ void* operator new[](const std::size_t size) {
 }
 
 void operator delete(void* const adress) {
-    MemoryTracker::Deallocate(adress, false);
+#if MESSAGES_ON
+    MemoryTracker::Get().PrintMessage();
     if (adress == NULL) {
-        printf("Freeing 0 bytes\n");
+        printf("Freeing 0 bytes (NULL adress)\n");
+        return;
     }
+#endif
+    MemoryTracker::Deallocate(adress, false);
     free(adress);
 }
 
 void operator delete[](void* const adress) {
-    MemoryTracker::Deallocate(adress, true);
+#if MESSAGES_ON
+    MemoryTracker::Get().PrintMessage();
     if (adress == NULL) {
-        printf("Freeing 0 bytes\n");
+        printf("Freeing 0 bytes (NULL adress)\n");
+        return;
     }
+#endif
+    MemoryTracker::Deallocate(adress, true);
     free(adress);
 }
 
-void* operator new(const std::size_t size, const int line, const char* const file) {
+void* operator new(const std::size_t size, const char* const file, const int line) {
     printf("%s %d: ", file, line);
     return ::operator new(size);
 }
 
-void* operator new[](const std::size_t size, const int line, const char* const file) {
+void* operator new[](const std::size_t size, const char* const file, const int line) {
     printf("%s %d: ", file, line);
     return ::operator new[](size);
 }
 
 #if MESSAGES_ON
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-#define new new(__LINE__, __FILENAME__)
-#define delete printf("%s %d: ", __FILENAME__, __LINE__), delete
+#define new new(__FILENAME__, __LINE__)
+#define delete MemoryTracker::Get().AddMessage(__FILENAME__, __LINE__), delete
 #endif
 
 //#pragma warning(pop)
