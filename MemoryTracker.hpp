@@ -78,10 +78,10 @@ Also if you try to allocate 0 bytes you'll get a warning in console.
 
 /* This dissables 2 warnings related to this file in MSVC */
 /* but you also need to uncomment line 214 "//#pragma warning(pop)" */
-#pragma warning(push)
-#pragma warning(disable : 28251)
-#pragma warning(disable : 28251)
+//#pragma warning(push)
+//#pragma warning(disable : 28251)
 
+#include <cstdio>
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
@@ -253,5 +253,5 @@ void* operator new[](const std::size_t size, const char* const file, const int l
 #define delete MemoryTracker::Get().AddMessage(__FILENAME__, __LINE__), delete
 #endif
 
-#pragma warning(pop)
+//#pragma warning(pop)
 #endif // MEMORYTRACKER_H_INCLUDED_
