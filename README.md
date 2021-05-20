@@ -4,6 +4,8 @@ I've created a basic memory handler for c++ programs. This file is a header.
 
 Functions:
 
+- MemoryTracker::Checkpoint() : starts/resets the tracking from that that point of the code
+- MemoryTracker::MessagesOn(bool) : turns on/off console messages when calling new or delete
 - MemoryTracker::MemoryUsage() : to show how much memory is currently dynamic allocated;
 - MemoryTracker::Allocations() : to show how many allocations and deallocations you've done;
 - MemoryTracker::UnfreedAllocations() : to show how many allocations are still alive (unfreed);
