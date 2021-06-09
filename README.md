@@ -1,5 +1,5 @@
 # Memory-Tracker-CPP
-I've created a basic memory handler for c++ programs. This file is a header.
+I've created a basic memory tracker for c++ programs. This file is a header.
 
 
 Functions:
